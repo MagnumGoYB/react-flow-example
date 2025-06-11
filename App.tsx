@@ -9,17 +9,18 @@ import dagre from '@dagrejs/dagre';
 
 import '@xyflow/react/dist/style.css';
 
-import { initialNodes, initialEdges } from './initialElements';
+import { initialNodes2, initialEdges2 } from './initialElements';
 
 const dagreGraph = new dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
 
 const nodeWidth = 172;
-const nodeHeight = 36;
+const nodeHeight = 56;
 
 const getLayoutedElements = (nodes, edges) => {
   dagreGraph.setGraph({ rankdir: 'TD' });
 
   nodes.forEach((node) => {
+    console.log(node)
     dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
   });
 
@@ -48,8 +49,8 @@ const getLayoutedElements = (nodes, edges) => {
 };
 
 const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
-  initialNodes,
-  initialEdges
+  initialNodes2,
+  initialEdges2
 );
 
 const Flow = () => {
