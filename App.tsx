@@ -1,7 +1,6 @@
+import React from 'react'
 import {
-  Background,
   ReactFlow,
-  ConnectionLineType,
   useNodesState,
   useEdgesState,
 } from '@xyflow/react';
@@ -13,15 +12,37 @@ import { initialNodes2, initialEdges2 } from './initialElements';
 
 const dagreGraph = new dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
 
-const nodeWidth = 172;
-const nodeHeight = 56;
+const lineHeight = 16;
+const fontSize = 12;
+const paddingY = 8;
+const paddingX = 16;
+
+const measureNodeSize = (label: string, maxLineWidth = 150) => {
+  const approxCharWidth = fontSize * 1.6666666666666667; // 粗略字符宽度
+  console.log('approxCharWidth:', approxCharWidth)
+  const words = label.split('');
+  console.log('words:', words)
+  const maxCharsPerLine = Math.floor(maxLineWidth / approxCharWidth);
+  console.log('maxCharsPerLine', maxCharsPerLine)
+  const numLines = Math.round(words.length / maxCharsPerLine);
+  console.log('numLines:', numLines)
+
+  const width = Math.min(maxLineWidth + paddingX, label.length * approxCharWidth + paddingX); // 加 padding
+  const height = numLines * lineHeight + paddingY * 2; // 加上下 padding
+
+  return { width, height };
+};
 
 const getLayoutedElements = (nodes, edges) => {
-  dagreGraph.setGraph({ rankdir: 'TD' });
+  dagreGraph.setGraph({
+    rankdir: 'TD',
+    nodesep: 28, // 节点间横向间距
+    ranksep: 60, // 层级间纵向间距
+  });
 
   nodes.forEach((node) => {
-    console.log(node)
-    dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
+    const { width, height } = measureNodeSize(node.data.label);
+    dagreGraph.setNode(node.id, { width, height });
   });
 
   edges.forEach((edge) => {
@@ -31,15 +52,27 @@ const getLayoutedElements = (nodes, edges) => {
   dagre.layout(dagreGraph);
 
   const newNodes = nodes.map((node) => {
-    const nodeWithPosition = dagreGraph.node(node.id);
+    const { width, height } = measureNodeSize(node.data.label);
+    const dagreNode = dagreGraph.node(node.id);
     const newNode = {
       ...node,
       targetPosition: 'top',
       sourcePosition: 'bottom',
       position: {
-        x: nodeWithPosition.x - nodeWidth / 2,
-        y: nodeWithPosition.y - nodeHeight / 2,
+        x: dagreNode.x - width / 2,
+        y: dagreNode.y - height / 2,
       },
+      style: {
+        width,
+        height,
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        boxSizing: 'border-box',
+        fontSize: `${fontSize}px`,
+        lineHeight: `${lineHeight}px`,
+        padding: `${paddingY}px ${paddingX}px`
+      }
     };
 
     return newNode;
@@ -59,12 +92,11 @@ const Flow = () => {
 
   return (
     <ReactFlow
+      fitView
       nodes={nodes}
       edges={edges}
-      connectionLineType={ConnectionLineType.SmoothStep}
-      fitView
+      proOptions={{ hideAttribution: true }}
     >
-      <Background />
     </ReactFlow>
   );
 };

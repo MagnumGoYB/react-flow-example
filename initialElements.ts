@@ -13,7 +13,7 @@ export const initialNodes2 = [
   {
     id: 'judge1',
     type: 'diamond',
-    data: { label: '更换正常方向盘开关后方向盘开关有效?' },
+    data: { label: '更换正常方向盘开关后方向盘开关有效更开关后方向盘开关有效?' },
     position: { x: 250, y: 120 }
   },
   {
